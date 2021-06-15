@@ -1,5 +1,5 @@
 
-import {  useRef, useState } from 'react';
+import {  useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 //common
@@ -36,6 +36,7 @@ const Count = styled.div`
 `;
 const ListContainer = styled.div`
   margin: 1.5em 0 3em 0;
+  height:100px;
 `;
 
 const SearchInput = styled.input`
@@ -64,7 +65,7 @@ const DelBtn = styled.button``;
 
 
 
-function User({user,reviseUser,deleteUser}) {
+function User({user,reviseUser,deleteUser,getSearch,curpage}) {
   const [vaName, setVaname] = useState(true);
   const [vaEmail, setVaEmail] = useState(true);
   const [vaNick, setVaNick] = useState(true);
@@ -85,6 +86,13 @@ function User({user,reviseUser,deleteUser}) {
   const nicknameRef = useRef();
   const searchRef = useRef();
 
+   useEffect(() =>{
+    if(searching){
+        getSearch(searchdata);
+    }else{
+        getSearch(user);
+    }
+   },[searchdata])
 
   const CheckName = () =>{
     let regExp = /^[가-힣a-zA-Z\s\d]{3,15}$/;
@@ -162,22 +170,36 @@ function User({user,reviseUser,deleteUser}) {
       <SearchInput placeholder="Search by username" ref={searchRef} onChange={onSearch}/>
       <ListContainer>
        { searching ? 
-       (searchdata.map((r,idx) => (<ContentContainer key={idx}>
-          <RadioBtn type="radio" id={r.name} name="user" checked={InputStatus === r.email} onClick={() => handleRadioBtn(r.email)}/>
-          {InputStatus=== r.email ? <NameInput vaName={vaName} defaultValue={r.name} onChange={CheckName}  ref={nameRef}/> : <Label htmlFor={r.email}>{r.name}</Label>}
-          {InputStatus=== r.email ? <EmailInput vaEmail={vaEmail} defaultValue={r.email} onChange={CheckEmail} ref={emailRef}/>: <Label htmlFor={r.email}>{r.email}</Label>}
-          {InputStatus=== r.email ? <NickInput vaNick={vaNick}  defaultValue={r.nickname} onChange={CheckNickName} ref={nicknameRef}/> : <Label htmlFor={r.email}>{r.nickname}</Label>}
-          {InputStatus=== r.email && <SavBtn disabled={Btn} onClick={()=>onSave(r,idx)}>Save</SavBtn>}
-          {InputStatus=== r.email && <DelBtn onClick={() =>onDelete(idx)}>Delete</DelBtn>}
-        </ContentContainer>))) :
-         (user.map((r,idx) => (<ContentContainer key={idx}>
+                (searchdata.map((r,idx) => {
+                    if(Number(Math.ceil((idx+1)/5))!==curpage){
+                       return null;
+                    }
+                    return(
+                   <ContentContainer key={idx}>
+                   <RadioBtn type="radio" id={r.name} name="user" checked={InputStatus === r.email} onClick={() => handleRadioBtn(r.email)}/>
+                   {InputStatus=== r.email ? <NameInput vaName={vaName} defaultValue={r.name} onChange={CheckName}  ref={nameRef}/> : <Label htmlFor={r.email}>{r.name}</Label>}
+                   {InputStatus=== r.email ? <EmailInput vaEmail={vaEmail} defaultValue={r.email} onChange={CheckEmail} ref={emailRef}/>: <Label htmlFor={r.email}>{r.email}</Label>}
+                   {InputStatus=== r.email ? <NickInput vaNick={vaNick}  defaultValue={r.nickname} onChange={CheckNickName} ref={nicknameRef}/> : <Label htmlFor={r.email}>{r.nickname}</Label>}
+                   {InputStatus=== r.email && <SavBtn disabled={Btn} onClick={()=>onSave(r,idx)}>Save</SavBtn>}
+                   {InputStatus=== r.email && <DelBtn onClick={() =>onDelete(idx)}>Delete</DelBtn>}
+                 </ContentContainer>
+                    )
+                })) :
+         (user.map((r,idx) => {
+             if(Number(Math.ceil((idx+1)/5))!==curpage){
+                return null;
+             }
+             return(
+            <ContentContainer key={idx}>
             <RadioBtn type="radio" id={r.name} name="user" checked={InputStatus === r.email} onClick={() => handleRadioBtn(r.email)}/>
             {InputStatus=== r.email ? <NameInput vaName={vaName} defaultValue={r.name} onChange={CheckName}  ref={nameRef}/> : <Label htmlFor={r.email}>{r.name}</Label>}
             {InputStatus=== r.email ? <EmailInput vaEmail={vaEmail} defaultValue={r.email} onChange={CheckEmail} ref={emailRef}/>: <Label htmlFor={r.email}>{r.email}</Label>}
             {InputStatus=== r.email ? <NickInput vaNick={vaNick}  defaultValue={r.nickname} onChange={CheckNickName} ref={nicknameRef}/> : <Label htmlFor={r.email}>{r.nickname}</Label>}
             {InputStatus=== r.email && <SavBtn disabled={Btn} onClick={()=>onSave(r,idx)}>Save</SavBtn>}
             {InputStatus=== r.email && <DelBtn onClick={() =>onDelete(idx)}>Delete</DelBtn>}
-          </ContentContainer>)))
+          </ContentContainer>
+             )
+         }))
         }
        </ListContainer>
       </UserContainer>
