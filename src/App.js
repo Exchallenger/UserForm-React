@@ -30,10 +30,12 @@ function App() {
     {name:'Julie',email:'julie@gmail.com',nickname:'civilian2'},
     {name:'Frank',email:'frank@gmail.com',nickname:'mafia1'},
   ]);
+
+
   const getUser = (newuser) =>{
     setUser(user => [...user,newuser]);
   }
-  const reviseUser = (idx,reuser) =>{
+  const reviseUser = (idx,reuser) =>{ 
     user[idx] = {name:reuser.name, email:reuser.email, nickname:reuser.nickname}
   }
   const deleteUser = (idx) =>{

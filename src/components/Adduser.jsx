@@ -53,25 +53,33 @@ const Adduser = ({user,getUser}) => {
     const [Btn,setBtn] = useState(true);
 
 
+    const formRef = useRef();
+    const nameRef = useRef();
+    const emailRef = useRef();
+    const nicknameRef = useRef();
+
   
     useEffect(() =>{
       if(vaEmail&&vaNick&&vaName&&nameRef.current.value.length>2&&emailRef.current.value.length>4&&nicknameRef.current.value.length>2){
         setBtn(false)
       }else{setBtn(true)}
     },[vaName,vaNick,vaEmail])
-    const formRef = useRef();
-    const nameRef = useRef();
-    const emailRef = useRef();
-    const nicknameRef = useRef();
+    
     const onSubmit = e =>{
       e.preventDefault();
-      getUser({
-        name: nameRef.current.value,
-        email: emailRef.current.value,
-        nickname: nicknameRef.current.value
-      })
-      formRef.current.reset();
-      setBtn(true);
+      let check = user.filter(r => r.email === emailRef.current.value);
+
+        if(check.length===0){
+          getUser({
+            name: nameRef.current.value,
+            email: emailRef.current.value,
+            nickname: nicknameRef.current.value
+          })
+          setBtn(true);
+          formRef.current.reset();
+        }else{
+          alert('중복된 이메일이 존재합니다.')
+        }
       }
   
     const CheckName = () =>{
