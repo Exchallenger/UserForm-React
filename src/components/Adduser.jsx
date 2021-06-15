@@ -10,6 +10,9 @@ const Title = styled.h3`
 
 const InputContainer = styled.div`
   display: flex;
+  @media screen and (max-width:684px){
+    flex-direction: column;
+  }
 `;
 const ForFlex = styled.div`
   display: flex;
@@ -41,9 +44,14 @@ outline: none;
 `;
 
 const AddBtn  = styled.button`
+  padding: 0.4em 1em;
   margin: 1em 0;
   outline: none;
-
+  border: none;
+  transition: 0.5s;
+  background-color :${props => props.Btn ? 'rgb(203,203,203)' : 'rgb(62,120,168)'} ;
+  color: white;
+  border-radius: 4px;
 `;
 
 const Adduser = ({user,getUser}) => {
@@ -68,7 +76,6 @@ const Adduser = ({user,getUser}) => {
     const onSubmit = e =>{
       e.preventDefault();
       let check = user.filter(r => r.email === emailRef.current.value);
-
         if(check.length===0){
           getUser({
             name: nameRef.current.value,
@@ -100,7 +107,7 @@ const Adduser = ({user,getUser}) => {
     }
   
     const CheckEmail = () =>{
-        let regExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        let regExp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
         if(regExp.test(emailRef.current.value))
         {
         setVaEmail(true);}else{
@@ -109,14 +116,14 @@ const Adduser = ({user,getUser}) => {
     }
 
     return (
-        <AddContainer onSubmit={onSubmit} ref={formRef}>
+      <AddContainer onSubmit={onSubmit} ref={formRef}>
       <Title>Add User</Title>
       <InputContainer>
         <ForFlex><Content>name</Content><NameInput vaName={vaName} ref={nameRef} onChange={CheckName}/></ForFlex>
         <ForFlex><Content>email</Content><EmailInput vaEmail={vaEmail} ref={emailRef} onChange={CheckEmail}/></ForFlex>
         <ForFlex><Content>nickname</Content><NickInput vaNick={vaNick} ref={nicknameRef} onChange={CheckNickName}/></ForFlex>
       </InputContainer>
-      <AddBtn type="submit" disabled={Btn}>Add</AddBtn>
+      <AddBtn type="submit" Btn={Btn} disabled={Btn}>Add</AddBtn>
       </AddContainer>
     );
 };

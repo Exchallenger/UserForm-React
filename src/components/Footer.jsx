@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import '@fortawesome/fontawesome-free/js/all.js';
+
+
 
 const Container = styled.div`
   width: 100%;
@@ -12,21 +14,23 @@ const LBtn = styled.button`
   padding: 4px;
   border-radius: 4px;
   outline: none;
-  background-color: ${props => props.curpage ===1 ? 'gray' : 'skyblue'};
+  background-color: ${props => props.curpage ===1 ? 'rgb(203,203,203)' : 'skyblue'};
   color: white;
   border: none;
   cursor: ${props => props.curpage ===1 ? 'inital' : 'pointer'};
   font-size: 16px;
+  transition: 0.5s;
 `;
 const RBtn = styled.button`
   padding: 4px;
   border-radius: 4px;
   outline: none;
-  background-color: ${props => props.pagelen===1 ||(props.pagelen > 1 && props.pagelen) === props.curpage ? 'gray':'skyblue'};
+  background-color: ${props => props.pagelen===1 ||(props.pagelen > 1 && props.pagelen) === props.curpage ? 'rgb(203,203,203)':'skyblue'};
   color: white;
   border: none;
   cursor: ${props => props.pagelen===1 ||(props.pagelen > 1 && props.pagelen) === props.curpage ? 'inital':'pointer'};;
   font-size: 16px;
+  transition: 0.5s;
 `;
 
 const Page = styled.div`

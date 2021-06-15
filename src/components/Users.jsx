@@ -25,6 +25,7 @@ outline: none;
   border: 1px solid;
   border-color:${props => props.vaNick ? 'black' : 'red'};
   padding: 0.3em 0.3em;
+  margin-right: 1em;
 `;
 // Users Form
 
@@ -57,9 +58,23 @@ const Label = styled.label`
   margin: 0px 0.5em;
 `;
 
-const SavBtn = styled.button``;
+const SavBtn = styled.button`
+  outline: none;
+  border: none;
+  margin-right: 0.5em;
+  transition: 0.5s;
+  background-color: ${props => props.Btn ? 'rgb(203,203,203)' : 'rgb(62,120,168)'};
+  color: white;
+  border-radius: 4px;
+`;
 
-const DelBtn = styled.button``;
+const DelBtn = styled.button`
+  outline: none;
+  background-color:rgb(138,34,37);
+  color: white;
+  border: none;
+  border-radius: 4px;
+`;
 
 
 
@@ -71,14 +86,15 @@ function User({user,reviseUser,deleteUser,getSearch,curpage}) {
   const [vaNick, setVaNick] = useState(true);
   const [Btn,setBtn] = useState(false);
   const [InputStatus, setInputStatus] = useState();
-  const [searching, setSearching] = useState(false);
   const [searchdata, setSearchdata] = useState(user);
+  const [nowemail, setNowmail] = useState();
 
    const handleRadioBtn = (Btnname) =>{
      setInputStatus(Btnname);
      setVaEmail(true);
      setVaNick(true);
      setVaname(true);
+     setNowmail(Btnname);
    }
 
   const nameRef = useRef();
@@ -86,13 +102,6 @@ function User({user,reviseUser,deleteUser,getSearch,curpage}) {
   const nicknameRef = useRef();
   const searchRef = useRef();
 
-   useEffect(() =>{
-    if(searching){
-        getSearch(searchdata);
-    }else{
-        getSearch(user);
-    }
-   },[searchdata])
 
   const CheckName = () =>{
     let regExp = /^[가-힣a-zA-Z\s\d]{3,15}$/;
@@ -118,7 +127,7 @@ function User({user,reviseUser,deleteUser,getSearch,curpage}) {
   }
 
   const CheckEmail = () =>{
-      let regExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      let regExp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       if(regExp.test(emailRef.current.value))
       {
       setVaEmail(true);
@@ -129,25 +138,23 @@ function User({user,reviseUser,deleteUser,getSearch,curpage}) {
           }
   }
 
-  const onSave = (res,idx) =>{
-    let check = user.filter(r => r.email === emailRef.current.value);
-    if(check.length===0){
+  const onSave = () =>{
+   let check = user.filter(r =>(r.email !== nowemail) && (r.email === emailRef.current.value))
+   if(check.length===1){
+    alert("중복된 이메일이 존재합니다");
+   }else if(nowemail===emailRef.current.value){ //이메일 값이 안바뀜
     setInputStatus('');
     let chanuser = {name:nameRef.current.value, email:emailRef.current.value, nickname:nicknameRef.current.value};
-    reviseUser(idx,chanuser);
-    setBtn(false);
-}
-    else if(res.email === emailRef.current.value){
-        let chanuser = {name:nameRef.current.value, email:emailRef.current.value, nickname:nicknameRef.current.value};
-        reviseUser(idx,chanuser);
-        setInputStatus('');
-    }
-    else{
-        alert("중복된 이메일이 존재합니다");
-    }
+    reviseUser(chanuser);
+   }else{
+    setInputStatus(''); //이메일 값이 바뀜
+    let chanuser = {name:nameRef.current.value, email:emailRef.current.value, nickname:nicknameRef.current.value};
+    reviseUser(chanuser,nowemail);
+   }
   }
-  const onDelete = (idx) =>{
-    deleteUser(idx);
+  const onDelete = (email) =>{
+    setSearchdata(searchdata.filter((r) => r.email !==email))
+    deleteUser(email);
   }
 
   const onSearch = () =>{
@@ -156,51 +163,48 @@ function User({user,reviseUser,deleteUser,getSearch,curpage}) {
     let res = user.filter(r => regExp.test(r.name));
     setSearchdata(res);
     if(searchRef.current.value===''){
-        setSearching(false);
+        setSearchdata(user);
+        getSearch(user);
     }else{
-        setSearching(true);
+        getSearch(res);
+        setSearchdata(res);
     }
   }
+
+useEffect(() =>{
+  onSearch();
+},[user])
   
   return (
-    
       <UserContainer>
       <Title>Users</Title>
-      <Count>{searching ? searchdata.length : user.length} users</Count>
+      <Count>{searchdata.length} users</Count>
       <SearchInput placeholder="Search by username" ref={searchRef} onChange={onSearch}/>
       <ListContainer>
-       { searching ? 
-                (searchdata.map((r,idx) => {
-                    if(Number(Math.ceil((idx+1)/5))!==curpage){
-                       return null;
-                    }
-                    return(
-                   <ContentContainer key={idx}>
-                   <RadioBtn type="radio" id={r.name} name="user" checked={InputStatus === r.email} onClick={() => handleRadioBtn(r.email)}/>
-                   {InputStatus=== r.email ? <NameInput vaName={vaName} defaultValue={r.name} onChange={CheckName}  ref={nameRef}/> : <Label htmlFor={r.email}>{r.name}</Label>}
-                   {InputStatus=== r.email ? <EmailInput vaEmail={vaEmail} defaultValue={r.email} onChange={CheckEmail} ref={emailRef}/>: <Label htmlFor={r.email}>{r.email}</Label>}
-                   {InputStatus=== r.email ? <NickInput vaNick={vaNick}  defaultValue={r.nickname} onChange={CheckNickName} ref={nicknameRef}/> : <Label htmlFor={r.email}>{r.nickname}</Label>}
-                   {InputStatus=== r.email && <SavBtn disabled={Btn} onClick={()=>onSave(r,idx)}>Save</SavBtn>}
-                   {InputStatus=== r.email && <DelBtn onClick={() =>onDelete(idx)}>Delete</DelBtn>}
-                 </ContentContainer>
-                    )
-                })) :
-         (user.map((r,idx) => {
-             if(Number(Math.ceil((idx+1)/5))!==curpage){
+        {searchdata.map((r,idx) => {
+            if(Number(Math.ceil((idx+1)/5))!==curpage){
                 return null;
-             }
-             return(
-            <ContentContainer key={idx}>
-            <RadioBtn type="radio" id={r.name} name="user" checked={InputStatus === r.email} onClick={() => handleRadioBtn(r.email)}/>
-            {InputStatus=== r.email ? <NameInput vaName={vaName} defaultValue={r.name} onChange={CheckName}  ref={nameRef}/> : <Label htmlFor={r.email}>{r.name}</Label>}
-            {InputStatus=== r.email ? <EmailInput vaEmail={vaEmail} defaultValue={r.email} onChange={CheckEmail} ref={emailRef}/>: <Label htmlFor={r.email}>{r.email}</Label>}
-            {InputStatus=== r.email ? <NickInput vaNick={vaNick}  defaultValue={r.nickname} onChange={CheckNickName} ref={nicknameRef}/> : <Label htmlFor={r.email}>{r.nickname}</Label>}
-            {InputStatus=== r.email && <SavBtn disabled={Btn} onClick={()=>onSave(r,idx)}>Save</SavBtn>}
-            {InputStatus=== r.email && <DelBtn onClick={() =>onDelete(idx)}>Delete</DelBtn>}
+            }
+            return(
+            <ContentContainer key={r.email}>
+            <RadioBtn type="radio" id={r.name} name="user" checked={InputStatus === r.email} onChange={() => handleRadioBtn(r.email)}/>
+            {InputStatus === r.email ? 
+            <>
+            <NameInput vaName={vaName} defaultValue={r.name} onChange={CheckName}  ref={nameRef}/>
+            <EmailInput vaEmail={vaEmail} defaultValue={r.email} onChange={CheckEmail} ref={emailRef}/>
+            <NickInput vaNick={vaNick}  defaultValue={r.nickname} onChange={CheckNickName} ref={nicknameRef}/>
+            <SavBtn Btn={Btn} disabled={Btn} onClick={onSave}>Save</SavBtn>
+            <DelBtn onClick={() =>onDelete(r.email)}>Delete</DelBtn>
+            </>
+            :
+            <>
+            <Label  htmlFor={r.email}>{r.name}</Label>
+            <Label  htmlFor={r.email}>{r.email}</Label>
+            <Label htmlFor={r.email}>{r.nickname}</Label>
+            </>}
           </ContentContainer>
-             )
-         }))
-        }
+            )
+        })}
        </ListContainer>
       </UserContainer>
   );
